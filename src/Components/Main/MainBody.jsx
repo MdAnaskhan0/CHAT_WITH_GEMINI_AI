@@ -16,10 +16,21 @@ const MainBody = () => {
 
     const handleSend = () => {
         if (input.trim()) {
-            onSend(input); // Call onSend with the current input
-            setInput(''); // Clear the input field
+            onSend(input);
+            setInput('');
         }
     };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') handleSend();
+    };
+
+    const cardsData = [
+        { text: "Suggest a beautiful place to see on an upcoming road trip", icon: assets.compass_icon },
+        { text: "Briefly summarize this concept: urban planning", icon: assets.bulb_icon },
+        { text: "Brainstorm team bonding activities for our work retreat", icon: assets.message_icon },
+        { text: "Improve the readability of the following code", icon: assets.code_icon },
+    ];
 
     return (
         <div className="main">
@@ -29,32 +40,42 @@ const MainBody = () => {
             </div>
 
             <div className="mainContainer">
-                <div className="greet">
-                    <p><span>Hello, Dev.</span></p>
-                    <p>How can I help you?</p>
-                </div>
+                {!showResult ? (
+                    <>
+                        <div className="greet">
+                            <p><span>Hello, Dev.</span></p>
+                            <p>How can I help you?</p>
+                        </div>
 
-                <div className="cards">
-                    <div className="card">
-                        <p>Suggest a beautiful place to see on an upcoming road trip</p>
-                        <img src={assets.compass_icon} alt="Compass Icon" />
+                        <div className="cards">
+                            {cardsData.map((card, index) => (
+                                <div key={index} className="card">
+                                    <p>{card.text}</p>
+                                    <img src={card.icon} alt="Icon" />
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <div className="result">
+                        <div className="resultTitle">
+                            <img src={assets.user_icon} alt="" />
+                            <p>{recentPrompt}</p>
+                        </div>
+                        <div className="resultData">
+                            <img src={assets.gemini_icon} alt="" />
+                            {loading ? (
+                                <div className='loader'>
+                                    <hr />
+                                    <hr />
+                                    <hr />
+                                </div>
+                            ) : (
+                                <p dangerouslySetInnerHTML={{ __html: resultData }}></p>
+                            )}
+                        </div>
                     </div>
-
-                    <div className="card">
-                        <p>Briefly summarize this concept: urban planning</p>
-                        <img src={assets.bulb_icon} alt="Bulb Icon" />
-                    </div>
-
-                    <div className="card">
-                        <p>Brainstorm team bonding activities for our work retreat</p>
-                        <img src={assets.message_icon} alt="Message Icon" />
-                    </div>
-
-                    <div className="card">
-                        <p>Improve the readability of the following code</p>
-                        <img src={assets.code_icon} alt="Code Icon" />
-                    </div>
-                </div>
+                )}
 
                 <div className="mainBottom">
                     <div className="searchBox">
@@ -63,20 +84,12 @@ const MainBody = () => {
                             placeholder="Enter a prompt here"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyPress}
                         />
                         <div onClick={handleSend} style={{ cursor: 'pointer' }}>
                             <img src={assets.send_icon} alt="Send Icon" />
                         </div>
                     </div>
-
-                    {loading && <p>Loading...</p>}
-
-                    {showResult && (
-                        <div className="resultBox">
-                            <p><strong>Prompt:</strong> {recentPrompt}</p>
-                            <p><strong>Response:</strong> {resultData}</p>
-                        </div>
-                    )}
 
                     <p className="bottomInfo">
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem, accusantium?
@@ -88,3 +101,4 @@ const MainBody = () => {
 };
 
 export default MainBody;
+

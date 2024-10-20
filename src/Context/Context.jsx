@@ -11,19 +11,50 @@ const ContextProvider = (props) => {
     const [loading, setLoading] = useState(false);
     const [resultData, setResultData] = useState('');
 
+    const delayPara = (index, nextWord) => {
+        setTimeout(function () {
+            setResultData(prev => prev + nextWord)
+        }, 75 * index)
+    }
+
+    const newChat = () =>{
+        setLoading(false)
+        setShowResult(false)
+    }
+
     const onSend = async (prompt) => {
-        try {
-            setLoading(true); 
-            const result = await run(prompt); 
-            setResultData(result); 
-            setShowResult(true); 
-            setPrevPrompt([...prevPrompt, prompt]);
-            setRecentPrompt(prompt); 
-        } catch (error) {
-            console.error("Error during API call:", error);
-        } finally {
-            setLoading(false); 
+        setResultData('');
+        setLoading(true);
+        setShowResult(true);
+
+        const newPrompt = prompt !== undefined ? prompt : input;
+        setPrevPrompt((prev) =>
+            prev.includes(newPrompt) ? prev : [...prev, newPrompt]
+        );
+
+        setRecentPrompt(newPrompt);
+
+        const response = await run(newPrompt);
+
+        let responseArray = response.split("**");
+        let newResponse = "";
+        for (let i = 0; i < responseArray.length; i++) {
+            if (i === 0 || i % 2 !== 1) {
+                newResponse += responseArray[i];
+            } else {
+                newResponse += "<b>" + responseArray[i] + "</b>";
+            }
         }
+
+        const newResponse2 = newResponse.split("*").join("</br>");
+        const newResponseArray = newResponse2.split(" ");
+        for (let i = 0; i < newResponseArray.length; i++) {
+            const nextWord = newResponseArray[i];
+            delayPara(i, nextWord + " ");
+        }
+
+        setLoading(false);
+        setInput('');
     };
 
     const contextValue = {
@@ -37,6 +68,7 @@ const ContextProvider = (props) => {
         resultData,
         input,
         setInput,
+        newChat
     };
 
     return (
